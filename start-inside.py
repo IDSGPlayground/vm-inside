@@ -12,36 +12,46 @@ from fabric.api import env, run, execute
 from subprocess import CalledProcessError
 
 import time
+import math
 
-class Retry(object):
-    defaultexceptions = (Exception,)
-    def init(self, tries, exceptions=None, delay=0):
-        """
-        Decorator for retrying a function if exception occurs
+# Retry decorator with exponential backoff
+def retry(tries, delay=3, backoff=2):
+  '''Retries a function or method until it returns True.
 
-        tries -- num tries
-        exceptions -- exceptions to catch
-        delay -- wait between retries
-        """
-        self.tries = tries
-        if exceptions is None:
-            exceptions = Retry.defaultexceptions
-        self.exceptions =  exceptions
-        self.delay = delay
+  delay sets the initial delay in seconds, and backoff sets the factor by which
+  the delay should lengthen after each failure. backoff must be greater than 1,
+  or else it isn't really a backoff. tries must be at least 0, and delay
+  greater than 0.'''
 
-    def _call(self, f):
-        def fn(args, *kwargs):
-            exception = None
-            for  in range(self.tries):
-                try:
-                    return f(args, *kwargs)
-                except self.exceptions, e:
-                    print "Retry, exception: "+str(e)
-                    time.sleep(self.delay)
-                    exception = e
-            #if no success after tries, raise last exception
-            raise exception
-        return fn
+  if backoff <= 1:
+    raise ValueError("backoff must be greater than 1")
+
+  tries = math.floor(tries)
+  if tries < 0:
+    raise ValueError("tries must be 0 or greater")
+
+  if delay <= 0:
+    raise ValueError("delay must be greater than 0")
+
+  def deco_retry(f):
+    def f_retry(*args, **kwargs):
+      mtries, mdelay = tries, delay # make mutable
+
+      rv = f(*args, **kwargs) # first attempt
+      while mtries > 0:
+        if rv is True: # Done on success
+          return True
+
+        mtries -= 1      # consume an attempt
+        time.sleep(mdelay) # wait...
+        mdelay *= backoff  # make future wait longer
+
+        rv = f(*args, **kwargs) # Try again
+
+      return False # Ran out of tries :-(
+
+    return f_retry # true decorator -> decorated function
+  return deco_retry  # @retry(arg[, ...]) -> true decorator
 
 def initialize(opts, args):
     config = Config(opts, args)
