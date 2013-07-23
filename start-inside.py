@@ -11,6 +11,38 @@ import vagrant
 from fabric.api import env, run, execute
 from subprocess import CalledProcessError
 
+import time
+
+class Retry(object):
+    defaultexceptions = (Exception,)
+    def init(self, tries, exceptions=None, delay=0):
+        """
+        Decorator for retrying a function if exception occurs
+
+        tries -- num tries
+        exceptions -- exceptions to catch
+        delay -- wait between retries
+        """
+        self.tries = tries
+        if exceptions is None:
+            exceptions = Retry.defaultexceptions
+        self.exceptions =  exceptions
+        self.delay = delay
+
+    def _call(self, f):
+        def fn(args, *kwargs):
+            exception = None
+            for  in range(self.tries):
+                try:
+                    return f(args, *kwargs)
+                except self.exceptions, e:
+                    print "Retry, exception: "+str(e)
+                    time.sleep(self.delay)
+                    exception = e
+            #if no success after tries, raise last exception
+            raise exception
+        return fn
+
 def initialize(opts, args):
     config = Config(opts, args)
     return config
@@ -22,10 +54,9 @@ def run(config):
     info("Booting up cell...")
     v.up(provider)
     info("Finalizing new cell...")
-    if provider != "kvm":
-       env.host_string = v.user_hostname()
-       env.key_filename = v.keyfile()
-       env.disable_known_hosts = True
+    env.host_string = v.user_hostname()
+    env.key_filename = v.keyfile()
+    env.disable_known_hosts = True
     shell_command = "vagrant status | grep 'running (' | awk '{ print $2$3 }'"
     event = Popen(shell_command, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
     output = event.communicate()
