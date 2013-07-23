@@ -19,8 +19,6 @@ def run(config):
     v = vagrant.Vagrant()
     info("Initializing Vagrant cell...")
     v.init("raring64")
-    info("Modifying Vagrantfile...")
-    replaceIf("# config.vm.network :pri", "config.vm.network :pri", provider == "kvm")
     info("Booting up cell...")
     v.up(provider)
     info("Finalizing new cell...")
