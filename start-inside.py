@@ -68,7 +68,7 @@ def run(config):
     info("Initializing Vagrant cell...")
     v.init("raring64")
     info("Booting up cell...")
-    v.up(provider)
+    v.up(config.provider)
     info("Finalizing new cell...")
     env.host_string = v.user_hostname()
     env.key_filename = v.keyfile()
