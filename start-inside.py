@@ -73,14 +73,8 @@ def run(config):
     env.host_string = v.user_hostname()
     env.key_filename = v.keyfile()
     env.disable_known_hosts = True
-    shell_command = "vagrant status | grep 'running (' | awk '{ print $2$3 }'"
-    event = Popen(shell_command, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
-    output = event.communicate()
-    if output[0].find("running") != -1:
-       prvdr = output[0][8:len(output[0])-2]
-       info("Successfully created new " + prvdr + " cell!")
-    else: warn("Something went horribly wrong.")
-    print()
+    wait_for_container(config)
+    info("Successfully created new {0} cell!".format(config.provider))
 
 def cleanup(config):
     pass
