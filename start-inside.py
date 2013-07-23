@@ -82,7 +82,7 @@ def cleanup(config):
 class Config():
     def __init__(self, opts, args):
         self.files = args
-        self.provier = 'lxc'
+        self.provider = 'lxc'
 
 class Usage(Exception):
     def __init__(self, msg):
