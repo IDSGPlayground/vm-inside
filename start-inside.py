@@ -81,7 +81,9 @@ def run(config):
     info("Successfully created new {0} cell!".format(config.provider))
 
 def cleanup(config):
-    pass
+    v = config.v
+    # v.halt()
+    # v.destroy()
 
 class Config():
     def __init__(self, opts, args):
