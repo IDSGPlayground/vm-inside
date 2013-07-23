@@ -61,6 +61,9 @@ def wait_for_container(config):
 
 def initialize(opts, args):
     config = Config(opts, args)
+    if os.path.exists(config.Vagrantfile):
+        debug("Deleting: {0}".format(config.Vagrantfile))
+        os.unlink(config.Vagrantfile)
     return config
 
 def run(config):
@@ -84,6 +87,7 @@ class Config():
     def __init__(self, opts, args):
         self.files = args
         self.provider = 'lxc'
+        self.Vagrantfile = 'Vagrantfile'
 
 class Usage(Exception):
     def __init__(self, msg):
