@@ -53,6 +53,12 @@ def retry(tries, delay=3, backoff=2):
     return f_retry # true decorator -> decorated function
   return deco_retry  # @retry(arg[, ...]) -> true decorator
 
+@retry(2, delay=5)
+def wait_for_container(config):
+    v = config.v
+    if v.status() != 'running':
+        raise Exception('Inside {0} container failed to start!'.format(v.provider))
+
 def initialize(opts, args):
     config = Config(opts, args)
     return config
