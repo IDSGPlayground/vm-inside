@@ -72,7 +72,7 @@ def run(config):
     v = vagrant.Vagrant()
     config.v = v
     info("Initializing Vagrant cell...")
-    v.init("raring64")
+    #v.init("raring64")
     info("Booting up cell...")
     shell_command = "cp /vagrant/Vagrantfile-inside Vagrantfile"
     event = Popen(shell_command, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
