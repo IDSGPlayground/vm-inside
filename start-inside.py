@@ -9,7 +9,9 @@ from   logging import debug, info, error, warn
 import fileinput, os, sys
 import vagrant
 from fabric.api import env, run, execute
-from subprocess import CalledProcessError
+from subprocess import CalledProcessError, Popen, PIPE, STDOUT
+import subprocess
+import startVm
 
 import time
 import math
@@ -72,6 +74,9 @@ def run(config):
     info("Initializing Vagrant cell...")
     v.init("raring64")
     info("Booting up cell...")
+    shell_command = "cp /vagrant/Vagrantfile-inside Vagrantfile"
+    event = Popen(shell_command, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
+    startVm.replaceIf("  config.vm.synced_folder", "  # config.vm.synced_folder")
     v.up(config.provider)
     info("Finalizing new cell...")
     env.host_string = v.user_hostname()
