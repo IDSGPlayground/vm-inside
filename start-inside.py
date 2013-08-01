@@ -11,7 +11,6 @@ import vagrant
 from fabric.api import env, run, execute
 from subprocess import CalledProcessError, Popen, PIPE, STDOUT
 import subprocess
-import startVm
 
 import time
 import math
